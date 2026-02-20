@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Owner Dashboard</title></head>
+<body style="font-family: sans-serif; padding: 50px;">
+    <h1>Cinnamedic | Global Owner Dashboard</h1>
+    <div id="user-list">Loading pending users...</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = { /* PASTE SAME CONFIG */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref('users').on('value', snap => {
+            const div = document.getElementById('user-list');
+            div.innerHTML = '';
+            snap.forEach(child => {
+                const u = child.val();
+                if(!u.isApproved) {
+                    div.innerHTML += `
+                        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+                            ${u.email} - Role: ${u.role}
+                            <button onclick="approve('${child.key}')">Approve Access</button>
+                        </div>`;
+                }
+            });
+        });
+
+        function approve(uid) {
+            db.ref('users/' + uid).update({ isApproved: true });
+            alert("User Approved!");
+        }
+    </script>
+</body>
+</html>
